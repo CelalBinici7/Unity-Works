@@ -97,5 +97,69 @@ public class Vector3Class : MonoBehaviour
         }
        
     }
+
+        public void  Vector3Lerp()
+    {
+        //Linearly interpolates between two points.
+        //Example1 
+        float t = 0;
+        
+        float speed = 0.8f;
+
+        t = Time.deltaTime * speed;
+
+        Vector3 pos = Vector3.Lerp(object1.transform.position,object2.transform.position,t);
+        
+        object1.transform.position = pos;
+
+    }
+
+    public void MoveTowards()
+    {
+        //is used to move an object at a constant speed towards a specific target. 
+        float speed = 2f;
+        float maxDistanceDelta = speed * Time.deltaTime;
+        Vector3 pos = object1.transform.position;
+        object1.transform.position = Vector3.MoveTowards(pos,object2.transform.position,speed);
+    }
+
+    public void Vector3Project()
+    {
+        Vector3 pos = object2.transform.position - object1.transform.position;
+        Vector3 projectPos = Vector3.Project(pos,object1.transform.position);
+        object1.transform.position += projectPos * Time.deltaTime;
+    }
+
+    public void Vector3ProjectOnPlane()
+    {
+        //on an inclined surface, we projected the motion vector onto the horizontal surface to ensure that the character moves forward and does not lose speed
+        float playerHeight =1f;
+        float speed = 3;
+        float maxSlopeAngle = 35;
+        bool onSlope;
+        float horizontalInput = Input.GetAxis("Horizontal");
+        float verticalInput = Input.GetAxis("Vertical");
+        
+        Vector3 direction = new Vector3(horizontalInput, 0, verticalInput);
+        
+    
+
+        RaycastHit hit;
+        if (Physics.Raycast(object1.transform.position,Vector3.down,out hit,playerHeight * 0.5f +0.5f))
+        {
+            if (Vector3.Angle(hit.normal,Vector3.up)>maxSlopeAngle)
+            {
+                Vector3 velocity = direction * speed * Time.deltaTime;
+                direction = Vector3.ProjectOnPlane(direction, hit.normal).normalized;
+                object1.transform.position += direction;
+            }
+            else
+            {
+                Vector3 velocity = direction * speed * Time.deltaTime;
+
+                object1.transform.position += velocity;
+            }
+        }
+    }
 }
 
