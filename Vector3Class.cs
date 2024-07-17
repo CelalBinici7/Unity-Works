@@ -11,6 +11,11 @@ public class Vector3Class : MonoBehaviour
     public Transform centerPt;
     public float radius;
    
+   [Header("Reflect")]
+    public Transform laserStartPoint;
+    public Transform wall;
+    public LineRenderer lineRenderer;
+    public Vector3 laserDirections = new Vector3(0,1,0);
     void Update()
     {
 
@@ -160,6 +165,82 @@ public class Vector3Class : MonoBehaviour
                 object1.transform.position += velocity;
             }
         }
+    }
+
+     public void Vector3Reflect()
+ {
+     //Example
+     RaycastHit hit;
+     if (Physics.Raycast(laserStartPoint.position,laserDirections ,out hit,5f))
+     {
+         Vector3 normalVector = hit.normal;
+
+         Vector3 reflectVector = Vector3.Reflect(laserDirections,normalVector);
+
+         lineRenderer.positionCount = 3;
+         lineRenderer.SetPosition(0, laserStartPoint.position); 
+         lineRenderer.SetPosition(1, hit.point); 
+         lineRenderer.SetPosition(2, hit.point + reflectVector * 10);
+     }
+    
+     //Example 2
+     object1.transform.position = Vector3.Reflect(object2.transform.position, Vector3.right);
+ }
+
+    public void Vector3RotateTowards()
+    {
+        float speed = 1f*Time.deltaTime;
+        Vector3 currentDirection = transform.forward;
+        Vector3 offset = object2.transform.position - object1.transform.position;
+        offset.Normalize();
+        Vector3 newDirection = Vector3.RotateTowards(currentDirection, offset, speed,0);
+        object1.transform.rotation = Quaternion.LookRotation(newDirection);
+    }
+
+    public void Vector3SignedAngle()
+    {
+        Vector3 target = object2.transform.position - object1.transform.position;
+        Vector3 forward = object1.forward;
+
+        float angle = Vector3.SignedAngle(target,forward,Vector3.up);
+        print(angle);
+        if (angle > 5)
+        {
+            Debug.Log("on your left");
+        }
+        else if (angle < -5)
+        {
+            Debug.Log("on your right");
+        }
+    }
+
+    public void Vector3Slerp()
+    {
+        float elaspsedTime = 0;
+        float duration = 2f;
+
+        if (elaspsedTime < duration)
+        {
+            elaspsedTime += Time.deltaTime;
+
+            float  t =  elaspsedTime / duration;
+
+            print(elaspsedTime);
+
+            object1.transform.position = Vector3.Slerp(object1.transform.position,object2.transform.position,t);
+        }
+    }
+
+    public void Vector3SmoothDamp()
+    {
+        Vector3 velocity = Vector3.zero;
+        float smoothTİme = 0.3f;
+        float maxSpeed = 10f;
+        Vector3 current= object1.transform.position;
+        Vector3 target = object2.transform.position;
+
+        Vector3 pos = Vector3.SmoothDamp(current,target,ref velocity,smoothTİme,maxSpeed,Time.deltaTime);
+        object1.transform.position = pos;
     }
 }
 
